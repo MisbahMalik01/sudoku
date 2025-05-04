@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Sudoku Game</h1>
+    </header>
+    
+    <main>
+        <div class="sudoku-container">
+            <div class="sudoku-grid" id="sudokuGrid"></div>
+            <div class="number-pad-popup" id="numberPadPopup">
+                <button class="number-pad-btn">1</button>
+                <button class="number-pad-btn">2</button>
+                <button class="number-pad-btn">3</button>
+                <button class="number-pad-btn">4</button>
+                <button class="number-pad-btn">5</button>
+                <button class="number-pad-btn">6</button>
+                <button class="number-pad-btn">7</button>
+                <button class="number-pad-btn">8</button>
+                <button class="number-pad-btn">9</button>
+                <button class="number-pad-btn delete">X</button>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button id="newGame" aria-label="Start a new game">New Game</button>
+            <button id="checkSolution" aria-label="Check if the current solution is correct">Check Solution</button>
+        </div>
+    </main>
+
+    <script src="script.js" type="module"></script>
+</body>
+</html>
