@@ -96,9 +96,17 @@ class GridManager {
     constructor() {
         this.gridElement = document.getElementById('sudokuGrid');
         this.selectedCell = null;
+        
+        // Create error message element
         this.errorMessage = document.createElement('div');
         this.errorMessage.className = 'error-message';
         this.gridElement.parentElement.appendChild(this.errorMessage);
+        
+        // Create success message element
+        this.successMessage = document.createElement('div');
+        this.successMessage.className = 'success-message';
+        this.gridElement.parentElement.appendChild(this.successMessage);
+        
         this.numberPadPopup = document.getElementById('numberPadPopup');
         this.numberPadBtns = Array.from(this.numberPadPopup.querySelectorAll('.number-pad-btn'));
         this.popupCallback = null;
@@ -206,6 +214,23 @@ class GridManager {
             cell.classList.remove('invalid');
         }
     }
+
+    showSuccess(message) {
+        // Hide any error messages
+        this.hideError();
+        
+        // Show success message
+        this.successMessage.textContent = message;
+        this.successMessage.classList.add('show');
+        
+        // Add success class to grid
+        this.gridElement.classList.add('success');
+    }
+
+    hideSuccess() {
+        this.successMessage.classList.remove('show');
+        this.gridElement.classList.remove('success');
+    }
 }
 
 // GameManager class handles the game logic and state
@@ -256,9 +281,7 @@ class GameManager {
             cell.addEventListener('click', (e) => this.handleCellClick(cell, e));
         });
 
-        document.addEventListener('keydown', (e) => this.handleKeyPress(e));
         document.getElementById('newGame').addEventListener('click', () => this.generatePuzzle());
-        document.getElementById('checkSolution').addEventListener('click', () => this.checkSolution());
     }
 
     handleCellClick(cell, e) {
@@ -330,6 +353,9 @@ class GameManager {
                 } else {
                     // Check if all errors are fixed
                     this.checkAllConflicts();
+                    
+                    // Check if the puzzle is complete
+                    this.checkForCompletion();
                 }
             }
         });
@@ -478,91 +504,89 @@ class GameManager {
         }
     }
 
-    // Comprehensive solution checking - verify all rules are satisfied
-    checkSolution() {
-        // RULE 3: Check all rows contain 1-9 (sum must be 45)
-        for (let i = 0; i < 9; i++) {
-            const rowSum = SudokuSolver.getRowSum(this.grid, i);
-            if (rowSum !== 45) {
-                this.gridManager.showError('Row ' + (i + 1) + ' sum is not 45! Check for missing or duplicate numbers.');
-                return;
-            }
-            
-            // Additional check for duplicates in rows
-            const rowNums = new Set();
-            for (let j = 0; j < 9; j++) {
-                if (this.grid[i][j] !== 0) {
-                    if (rowNums.has(this.grid[i][j])) {
-                        this.gridManager.showError('Row ' + (i + 1) + ' contains duplicate numbers!');
-                        return;
-                    }
-                    rowNums.add(this.grid[i][j]);
-                }
-            }
+    // Check if the puzzle is complete (all cells filled and no conflicts)
+    checkForCompletion() {
+        // Only check if there are no conflicts
+        if (this.invalidCells.size > 0) {
+            return;
         }
-
-        // RULE 4: Check all columns contain 1-9 (sum must be 45)
-        for (let i = 0; i < 9; i++) {
-            const colSum = SudokuSolver.getColumnSum(this.grid, i);
-            if (colSum !== 45) {
-                this.gridManager.showError('Column ' + (i + 1) + ' sum is not 45! Check for missing or duplicate numbers.');
-                return;
-            }
-            
-            // Additional check for duplicates in columns
-            const colNums = new Set();
-            for (let j = 0; j < 9; j++) {
-                if (this.grid[j][i] !== 0) {
-                    if (colNums.has(this.grid[j][i])) {
-                        this.gridManager.showError('Column ' + (i + 1) + ' contains duplicate numbers!');
-                        return;
-                    }
-                    colNums.add(this.grid[j][i]);
-                }
-            }
-        }
-
-        // RULE 5: Check all 3x3 boxes contain 1-9 (sum must be 45)
-        for (let i = 0; i < 9; i += 3) {
-            for (let j = 0; j < 9; j += 3) {
-                const boxSum = SudokuSolver.getBoxSum(this.grid, i, j);
-                if (boxSum !== 45) {
-                    this.gridManager.showError('Box at position (' + (i/3 + 1) + ',' + (j/3 + 1) + ') sum is not 45! Check for missing or duplicate numbers.');
-                    return;
-                }
-                
-                // Additional check for duplicates in boxes
-                const boxNums = new Set();
-                for (let r = 0; r < 3; r++) {
-                    for (let c = 0; c < 3; c++) {
-                        const num = this.grid[i + r][j + c];
-                        if (num !== 0) {
-                            if (boxNums.has(num)) {
-                                this.gridManager.showError('Box at position (' + (i/3 + 1) + ',' + (j/3 + 1) + ') contains duplicate numbers!');
-                                return;
-                            }
-                            boxNums.add(num);
-                        }
-                    }
-                }
-            }
-        }
-
-        // RULE 2: Check if all cells are filled with numbers 1-9
+        
+        // Check if all cells are filled
         for (let i = 0; i < 9; i++) {
             for (let j = 0; j < 9; j++) {
                 if (this.grid[i][j] === 0) {
-                    this.gridManager.showError('Please fill all cells with numbers 1-9!');
+                    return; // Puzzle is incomplete
+                }
+            }
+        }
+        
+        // If we reach here, all cells are filled and there are no conflicts
+        // Verify that all Sudoku rules are satisfied
+        this.verifyFullSolution();
+    }
+    
+    // Verify that a complete grid satisfies all Sudoku rules
+    verifyFullSolution() {
+        // Check all rows, columns, and boxes have sum of 45
+        // and contain all numbers 1-9
+        
+        // Check rows
+        for (let i = 0; i < 9; i++) {
+            const rowSum = SudokuSolver.getRowSum(this.grid, i);
+            if (rowSum !== 45) {
+                return;
+            }
+            
+            // Verify no duplicates in row
+            const rowDigits = new Set();
+            for (let j = 0; j < 9; j++) {
+                rowDigits.add(this.grid[i][j]);
+            }
+            if (rowDigits.size !== 9) {
+                return;
+            }
+        }
+        
+        // Check columns
+        for (let j = 0; j < 9; j++) {
+            const colSum = SudokuSolver.getColumnSum(this.grid, j);
+            if (colSum !== 45) {
+                return;
+            }
+            
+            // Verify no duplicates in column
+            const colDigits = new Set();
+            for (let i = 0; i < 9; i++) {
+                colDigits.add(this.grid[i][j]);
+            }
+            if (colDigits.size !== 9) {
+                return;
+            }
+        }
+        
+        // Check 3x3 boxes
+        for (let boxRow = 0; boxRow < 9; boxRow += 3) {
+            for (let boxCol = 0; boxCol < 9; boxCol += 3) {
+                const boxSum = SudokuSolver.getBoxSum(this.grid, boxRow, boxCol);
+                if (boxSum !== 45) {
                     return;
                 }
-                if (this.grid[i][j] < 1 || this.grid[i][j] > 9) {
-                    this.gridManager.showError('Invalid numbers! Only numbers 1-9 are allowed.');
+                
+                // Verify no duplicates in box
+                const boxDigits = new Set();
+                for (let i = 0; i < 3; i++) {
+                    for (let j = 0; j < 3; j++) {
+                        boxDigits.add(this.grid[boxRow + i][boxCol + j]);
+                    }
+                }
+                if (boxDigits.size !== 9) {
                     return;
                 }
             }
         }
-
-        alert('Congratulations! Solution is correct! All Sudoku rules are satisfied.');
+        
+        // All checks passed - solution is correct!
+        this.gridManager.showSuccess('Congratulations! You solved the Sudoku puzzle correctly!');
     }
 }
 
