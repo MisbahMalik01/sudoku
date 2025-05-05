@@ -215,6 +215,13 @@ class GridManager {
         }
     }
 
+    markSuccess() {
+        const cells = document.querySelectorAll('.cell');
+        cells.forEach(cell => {
+            cell.classList.add('success');
+        });
+    }
+
     showSuccess(message) {
         // Hide any error messages
         this.hideError();
@@ -224,13 +231,15 @@ class GridManager {
         this.successMessage.classList.add('show');
         
         // Add success class to grid
-        this.gridElement.classList.add('success');
+        // this.gridElement.classList.add('success');
+        this.markSuccess()
     }
 
     hideSuccess() {
         this.successMessage.classList.remove('show');
         this.gridElement.classList.remove('success');
     }
+
 }
 
 // GameManager class handles the game logic and state
@@ -262,7 +271,7 @@ class GameManager {
         }
 
         // Remove numbers to create the puzzle
-        let cellsToRemove = 40; // Adjust difficulty by changing this number
+        let cellsToRemove = 1; // Adjust difficulty by changing this number
         while (cellsToRemove > 0) {
             const row = Math.floor(Math.random() * 9);
             const col = Math.floor(Math.random() * 9);
@@ -504,6 +513,8 @@ class GameManager {
         }
     }
 
+
+
     // Check if the puzzle is complete (all cells filled and no conflicts)
     checkForCompletion() {
         // Only check if there are no conflicts
@@ -586,6 +597,7 @@ class GameManager {
         }
         
         // All checks passed - solution is correct!
+        // this.gridManager.markSuccess();
         this.gridManager.showSuccess('Congratulations! You solved the Sudoku puzzle correctly!');
     }
 }
