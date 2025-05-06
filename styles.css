@@ -19,6 +19,7 @@ body {
     gap: 0.0625em;
     background-color: #000;
     border: 0.125em solid #000;
+    box-sizing: border-box;
 }
 
 .cell {
@@ -30,13 +31,12 @@ body {
     cursor: pointer;
 }
 
-
 .cell:nth-child(3n) {
-    border-right: 0.125em solid #000;
+    border-right: 0.125em solid black;
 }
 
 .cell:nth-child(9n) {
-    border-right: none;
+    border-right: black;
 }
 
 .cell:nth-child(n+19):nth-child(-n+27),
@@ -103,10 +103,23 @@ button:hover {
     animation: fadeIn 0.3s ease;
 }
 
+/* Success state styling */
 .cell.success {
     background-color: #90EE90;
+    border: none !important;
 }
 
+/* Fix for the black bar on success */
+.sudoku-grid.complete {
+    width: 28.125em !important; /*Exactly 9 * 3.125em*/
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.sudoku-grid.complete .cell {
+    border: none !important;
+}
 
 .success-message {
     position: static;
@@ -120,7 +133,7 @@ button:hover {
     border: 0.0625em solid #4CAF50;
     text-align: center;
     font-weight: bold;
-    box-shadow: 0 0.125em 0.3125em rgba(0,0,0,0.1);
+    box-shadow: 0 0.125em 0.3125em rgba(255, 255, 255, 0.1);
 }
 
 .success-message.show {
@@ -142,14 +155,14 @@ button:hover {
     background: #fff;
     border: 0.0625em solid #ccc;
     border-radius: 0.375em;
-    box-shadow: 0 0.125em 0.5em rgba(0,0,0,0.15);
-    padding: 0.5em;
+    box-shadow: 0 0.125em 0.5em rgba(255, 255, 255, 0.15);
+    padding-right: 0.7em;
     z-index: 1000;
 }
 
 .number-pad-btn {
-    width: 2.5em;
-    height: 2.5em;
+    width: 2em;
+    height: 2em;
     font-size: 1.25em;
     background: #f8f8f8;
     border: 0.0625em solid #ddd;

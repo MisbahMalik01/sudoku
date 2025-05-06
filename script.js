@@ -220,6 +220,14 @@ class GridManager {
         cells.forEach(cell => {
             cell.classList.add('success');
         });
+        
+        // Add the complete class to the grid to fix the black bar issue
+        this.gridElement.classList.add('complete');
+        
+        // Set explicit width to prevent any extra space
+        const gridWidth = 9 * 3.125; // 9 cells at 3.125em each
+        this.gridElement.style.width = gridWidth + 'em';
+        this.gridElement.style.borderRight = 'none';
     }
 
     showSuccess(message) {
@@ -232,7 +240,7 @@ class GridManager {
         
         // Add success class to grid
         // this.gridElement.classList.add('success');
-        this.markSuccess()
+        this.markSuccess();
     }
 
     hideSuccess() {
@@ -597,7 +605,7 @@ class GameManager {
         }
         
         // All checks passed - solution is correct!
-        // this.gridManager.markSuccess();
+        this.gridManager.markSuccess();
         this.gridManager.showSuccess('Congratulations! You solved the Sudoku puzzle correctly!');
     }
 }
