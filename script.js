@@ -279,7 +279,7 @@ class GameManager {
         }
 
         // Remove numbers to create the puzzle
-        let cellsToRemove = 1; // Adjust difficulty by changing this number
+        let cellsToRemove = 40; // Adjust difficulty by changing this number
         while (cellsToRemove > 0) {
             const row = Math.floor(Math.random() * 9);
             const col = Math.floor(Math.random() * 9);
